@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jbarham/primegen.go"
-	"log"
 	"os"
 	"strconv"
 )
@@ -40,8 +39,5 @@ func main() {
 		usage()
 	}
 
-	err = primegen.Write(os.Stdout, low, high)
-	if err != nil {
-		log.Fatalf("Error writing primes: %s\n", err)
-	}
+	primegen.CountClasses(low, high)
 }

@@ -6,8 +6,7 @@
 package primegen
 
 import (
-	"bufio"
-	"io"
+	"log"
 )
 
 const (
@@ -108,30 +107,35 @@ func (pg *Primegen) SkipTo(x uint64) {
 
 const ndigits = 32
 
-// Write efficiently writes the list of prime numbers between low and high,
-// separated by newline, to w.
-func Write(w io.Writer, low, high uint64) (err error) {
-	var i int
-	digits := make([]byte, 32)
-	digits[ndigits-1] = '\n'
-
+// CountClasses finds the number of consecutive prime numbers between low and high,
+// whose mod 3 classes are (1, 1), (1, 2), (2, 1), and (2, 2).
+func CountClasses(low, high uint64) {
 	sieve := New()
 	sieve.SkipTo(low)
 	x := sieve.Next()
-	b := bufio.NewWriter(w)
+	cnew := x % 3
+	var cold, c11, c12, c21, c22 uint64
 	for x < high {
-		xx := x
-		for i = ndigits - 2; i > 0; i-- {
-			digits[i] = '0' + byte(xx%10)
-			if xx < 10 {
-				break
-			}
-			xx /= 10
+		cold = cnew
+		cnew = x % 3
+		if cold == 1 && cnew == 1 {
+			c11 += 1
+		} else if cold == 1 && cnew == 2 {
+			c12 += 1
+		} else if cold == 2 && cnew == 1 {
+			c21 += 1
+		} else if cold == 2 && cnew == 2 {
+			c22 += 1
 		}
-		if _, err = b.Write(digits[i:]); err != nil {
-			return err
-		}
+
 		x = sieve.Next()
 	}
-	return b.Flush()
+	log.Println("In class (1, 1):")
+	log.Println(c11)
+	log.Println("In class (1, 2):")
+	log.Println(c12)
+	log.Println("In class (2, 1):")
+	log.Println(c21)
+	log.Println("In class (2, 2):")
+	log.Println(c22-1)
 }
